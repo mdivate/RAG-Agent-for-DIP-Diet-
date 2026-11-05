@@ -1,8 +1,26 @@
 # config.py — Central configuration for the RAG Recipe Generator
+#
+# Credentials are loaded from (in priority order):
+#   1. st.secrets (Streamlit Cloud — set via the Secrets UI)
+#   2. Environment variables (local .env file via python-dotenv)
+#   3. Hard-coded fallback defaults (empty strings — app will show an error)
 
-IBM_API_KEY = "qQfNCZEYbrhvQgGnSQz93B0iI1NZikTPCEwVxmHFzwec"
-IBM_PROJECT_ID = "d0ee319c-6bad-444f-ab33-175b49c642ee"
-IBM_ENDPOINT_URL = "https://au-syd.ml.cloud.ibm.com"
+import os
+from dotenv import load_dotenv
+
+load_dotenv()  # loads .env when running locally; no-op on Streamlit Cloud
+
+def _secret(key: str, default: str = "") -> str:
+    """Read from st.secrets first, then os.environ, then default."""
+    try:
+        import streamlit as st
+        return st.secrets.get(key, os.environ.get(key, default))
+    except Exception:
+        return os.environ.get(key, default)
+
+IBM_API_KEY      = _secret("IBM_API_KEY")
+IBM_PROJECT_ID   = _secret("IBM_PROJECT_ID")
+IBM_ENDPOINT_URL = _secret("IBM_ENDPOINT_URL", "https://au-syd.ml.cloud.ibm.com")
 
 # LLM Model — au-syd region (verified 2026-11)
 # Only model supporting text_generation in au-syd:
