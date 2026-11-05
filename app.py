@@ -38,6 +38,7 @@ from agents import (
     NutritionAnalysisAgent,
     PersonalizationAgent,
     ConversationalQAAgent,
+    SUPPORTED_LANGUAGES,
 )
 from llm_client import test_connection
 
@@ -618,6 +619,13 @@ def render_recipe_generator() -> None:
             help="Use your recipe knowledge base for context.",
         )
         top_k = st.slider("Context chunks", 1, 8, 5, help="Number of document chunks to retrieve.")
+        recipe_language = st.selectbox(
+            "🌐 Output Language",
+            SUPPORTED_LANGUAGES,
+            index=0,
+            key="recipe_language",
+            help="Generate the recipe in your preferred language.",
+        )
 
     col_gen, col_shop = st.columns([2, 1])
 
@@ -644,6 +652,7 @@ def render_recipe_generator() -> None:
                 profile=profile,
                 use_documents=use_docs,
                 top_k=top_k,
+                language=recipe_language,
             )
 
         st.session_state.last_recipe = result["recipe"]
@@ -721,6 +730,14 @@ def render_nutrition_analysis() -> None:
             key="nutrition_recipe_input",
         )
 
+        nutrition_language = st.selectbox(
+            "🌐 Output Language",
+            SUPPORTED_LANGUAGES,
+            index=0,
+            key="nutrition_language",
+            help="Get the nutrition analysis in your preferred language.",
+        )
+
         analyse_btn = st.button(
             "🔬 Analyse Nutrition",
             type="primary",
@@ -730,7 +747,7 @@ def render_nutrition_analysis() -> None:
 
         if analyse_btn and recipe_input.strip():
             with st.spinner("🔬 Analysing nutritional content…"):
-                analysis = nutrition_agent.analyse(recipe_input, profile)
+                analysis = nutrition_agent.analyse(recipe_input, profile, language=nutrition_language)
             st.session_state.last_nutrition = analysis
 
             st.markdown('<div class="recipe-card">', unsafe_allow_html=True)

@@ -11,6 +11,25 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
+# Supported output languages for recipe / nutrition generation
+SUPPORTED_LANGUAGES = [
+    "English",
+    "Hindi",
+    "Spanish",
+    "French",
+    "German",
+    "Arabic",
+    "Portuguese",
+    "Chinese (Simplified)",
+    "Japanese",
+    "Korean",
+    "Italian",
+    "Tamil",
+    "Telugu",
+    "Marathi",
+    "Bengali",
+]
+
 from llm_client import generate_chat
 from rag_pipeline import retrieve_relevant_chunks, build_context_string
 from user_profile import UserProfile
@@ -67,6 +86,7 @@ class RecipeGenerationAgent:
         profile: UserProfile,
         use_documents: bool = True,
         top_k: int = TOP_K_RETRIEVAL,
+        language: str = "English",
     ) -> Dict[str, Any]:
         """Generate a personalised recipe. Returns dict with recipe, chunks, warnings, disclaimer."""
         safety_block = _safety_check(query)
@@ -84,6 +104,7 @@ class RecipeGenerationAgent:
                 )
 
         user_ctx = profile.to_prompt_context() if profile.profile_complete else "No user profile provided."
+        lang_instruction = f"7. Write the ENTIRE response in **{language}**." if language != "English" else ""
 
         user_msg = (
             f"## User Profile\n{user_ctx}\n\n"
@@ -97,7 +118,8 @@ class RecipeGenerationAgent:
             "4. Is appropriate for the user's cooking skill level and time preference.\n"
             "5. Includes: Recipe Name, Servings & Prep/Cook Time, Ingredients List (with quantities), "
             "Step-by-step Instructions, Ingredient Substitutions, Tips & Variations.\n"
-            "6. Format clearly with Markdown headings (##)."
+            "6. Format clearly with Markdown headings (##).\n"
+            + (lang_instruction + "\n" if lang_instruction else "")
         )
 
         recipe_text = generate_chat(self._SYSTEM, user_msg, max_tokens=1200)
@@ -146,7 +168,7 @@ class NutritionAnalysisAgent:
         "a healthcare professional for personalised medical nutrition therapy."
     )
 
-    def analyse(self, recipe_text: str, profile: UserProfile) -> str:
+    def analyse(self, recipe_text: str, profile: UserProfile, language: str = "English") -> str:
         """Return a detailed nutritional breakdown and health commentary."""
         safety_block = _safety_check(recipe_text)
         if safety_block:
@@ -154,6 +176,7 @@ class NutritionAnalysisAgent:
 
         health_goals = ", ".join(profile.health_goals) if profile.health_goals else "general healthy eating"
         calorie_note = f"Calorie target: ~{profile.calorie_target} kcal per meal. " if profile.calorie_target else ""
+        lang_instruction = f"\n6. Write the ENTIRE response in **{language}**." if language != "English" else ""
 
         user = (
             f"Health goals: {health_goals}. {calorie_note}\n\n"
@@ -164,6 +187,7 @@ class NutritionAnalysisAgent:
             "3. **Alignment with Health Goals** — rate and explain\n"
             "4. **Healthier Swaps** — 2–3 ingredient substitutions to improve nutrition\n"
             "5. **Important Notes** — for specific conditions (diabetes, heart health, etc.)"
+            + lang_instruction
         )
         analysis = generate_chat(self._SYSTEM, user, max_tokens=900)
         return analysis + f"\n\n---\n{MEDICAL_DISCLAIMER}"
