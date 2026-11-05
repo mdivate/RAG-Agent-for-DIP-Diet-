@@ -3,7 +3,7 @@
 > **Personalized recipes powered by IBM Granite LLM & Retrieval-Augmented Generation (RAG)**
 
 [![IBM watsonx.ai](https://img.shields.io/badge/IBM-watsonx.ai-0f62fe?logo=ibm)](https://www.ibm.com/products/watsonx-ai)
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://n6t4urje76cesaadseyopw.streamlit.app)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://project-no-5-vweqdeo9nxhwkobvsk349l.streamlit.app)
 [![Python](https://img.shields.io/badge/Python-3.10+-3776ab?logo=python)](https://python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -76,7 +76,7 @@ RAG-Agent-for-DIP-Diet/
 
 ## 🌐 Live Demo
 
-**👉 [https://n6t4urje76cesaadseyopw.streamlit.app](https://n6t4urje76cesaadseyopw.streamlit.app)**
+**👉 [https://project-no-5-vweqdeo9nxhwkobvsk349l.streamlit.app](https://project-no-5-vweqdeo9nxhwkobvsk349l.streamlit.app)**
 
 ---
 
