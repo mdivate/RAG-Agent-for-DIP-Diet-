@@ -1,26 +1,47 @@
 # config.py — Central configuration for the RAG Recipe Generator
 #
 # Credentials are loaded from (in priority order):
-#   1. st.secrets (Streamlit Cloud — set via the Secrets UI)
-#   2. Environment variables (local .env file via python-dotenv)
-#   3. Hard-coded fallback defaults (empty strings — app will show an error)
+#   1. Streamlit secrets  — set via App Settings → Secrets on share.streamlit.io
+#   2. Environment variables / .env file (local development)
+#
+# st.secrets is accessed lazily (inside functions) so this module is safe
+# to import before the Streamlit runtime initialises.
 
 import os
-from dotenv import load_dotenv
 
-load_dotenv()  # loads .env when running locally; no-op on Streamlit Cloud
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # python-dotenv not installed; env vars must be set another way
 
-def _secret(key: str, default: str = "") -> str:
-    """Read from st.secrets first, then os.environ, then default."""
+
+def get_ibm_api_key() -> str:
     try:
         import streamlit as st
-        return st.secrets.get(key, os.environ.get(key, default))
+        return st.secrets.get("IBM_API_KEY", os.environ.get("IBM_API_KEY", ""))
     except Exception:
-        return os.environ.get(key, default)
+        return os.environ.get("IBM_API_KEY", "")
 
-IBM_API_KEY      = _secret("IBM_API_KEY")
-IBM_PROJECT_ID   = _secret("IBM_PROJECT_ID")
-IBM_ENDPOINT_URL = _secret("IBM_ENDPOINT_URL", "https://au-syd.ml.cloud.ibm.com")
+
+def get_ibm_project_id() -> str:
+    try:
+        import streamlit as st
+        return st.secrets.get("IBM_PROJECT_ID", os.environ.get("IBM_PROJECT_ID", ""))
+    except Exception:
+        return os.environ.get("IBM_PROJECT_ID", "")
+
+
+def get_ibm_endpoint_url() -> str:
+    try:
+        import streamlit as st
+        return st.secrets.get("IBM_ENDPOINT_URL", os.environ.get("IBM_ENDPOINT_URL", "https://au-syd.ml.cloud.ibm.com"))
+    except Exception:
+        return os.environ.get("IBM_ENDPOINT_URL", "https://au-syd.ml.cloud.ibm.com")
+
+
+# Module-level constants (non-secret) — safe to read at import time
+IBM_ENDPOINT_URL = "https://au-syd.ml.cloud.ibm.com"  # default; overridden by get_ibm_endpoint_url()
 
 # LLM Model — au-syd region (verified 2026-11)
 # Only model supporting text_generation in au-syd:

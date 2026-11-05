@@ -51,13 +51,13 @@ def _get_llm() -> ModelInference:
 
     try:
         credentials = Credentials(
-            url=cfg.IBM_ENDPOINT_URL,
-            api_key=cfg.IBM_API_KEY,
+            url=cfg.get_ibm_endpoint_url(),
+            api_key=cfg.get_ibm_api_key(),
         )
         _LLM_CLIENT = ModelInference(
             model_id=cfg.GRANITE_MODEL_ID,
             credentials=credentials,
-            project_id=cfg.IBM_PROJECT_ID,
+            project_id=cfg.get_ibm_project_id(),
             params={
                 GenParams.MAX_NEW_TOKENS: cfg.LLM_PARAMS["max_new_tokens"],
                 GenParams.MIN_NEW_TOKENS: cfg.LLM_PARAMS["min_new_tokens"],
